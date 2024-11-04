@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/article.dart';
 import '../services/api_service.dart';
 import '../services/hive_service.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -35,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         _isLoading = false;
       });
     } catch (e) {
-      // Load articles from local storage if API call fails
+    
       setState(() {
         _articles = _hiveService.getSavedArticles();
         _isLoading = false;
@@ -73,9 +75,18 @@ class _HomePageState extends State<HomePage> {
       title: Text(article.title ?? 'No Title'),
       subtitle: Text(article.description ?? 'No Description'),
       onTap: () {
-        // Handle article tap, e.g., navigate to detail page or open URL
+        _launchURL(article.url);
       },
     );
+  }
+
+
+  void _launchURL(String? url) async {
+    if (url != null && await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
